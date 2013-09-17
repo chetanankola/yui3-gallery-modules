@@ -1,6 +1,6 @@
 /*global YUI */
 
-YUI.add('module-tests', function (Y) {
+YUI.add('gallery-nav-assist-tests', function (Y) {
     'use strict';
 
     var suite = new Y.Test.Suite('gallery-nav-assist'),
@@ -32,7 +32,7 @@ YUI.add('module-tests', function (Y) {
                         className: 'main-container-custom-highlight'
                     }
                 }, {
-                    node: '#rightbar',
+                    node: '#eastrail',
                     rank: 3
                 }, {
                     node: '#links',
@@ -41,7 +41,7 @@ YUI.add('module-tests', function (Y) {
                     node: '#sidebar',
                     rank: 1
                 }, {
-                    node: '#tab ul',
+                    node: '#tabs ul',
                     isHorizontal: true
                 }, {
                     node: '#crapNodeDoesntExist'
@@ -50,11 +50,40 @@ YUI.add('module-tests', function (Y) {
                 styleContainer: true,
                 ignore: ['#testinputbox']
             });
+
+            nav.register({
+                node: '#header'
+            });
+
+            nav.splash('Disabled all other guys except me!!! for navigation lol!', [100, 100]);
+
+            nav.disableAllNavigation();
+
+            nav.enableAllNavigation();
+
+            nav.deRegister({node: '#main'});
+
+            nav.makeNextContainerNavigable(true);
+
+            nav.onMyKeyUp({ // mock eventFacade
+                preventDefault: function () {
+                    return true;
+                }
+            });
+
+            nav.getPreviousIndex(0);
+
+            this.wait(function () {
+                Assert.isObject(nav);
+            }, 1000);
         }
     }));
 
     Y.Test.Runner.add(suite);
 
 }, '', {
-    requires: [ 'test' ]
+    requires: [
+        'test',
+        'gallery-nav-assist'
+    ]
 });

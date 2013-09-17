@@ -1,4 +1,4 @@
-gallery
-=======
+yui3-gallery-modules
+====================
 
-My YUI Gallery Modules
+My YUI Gallery Modules...
