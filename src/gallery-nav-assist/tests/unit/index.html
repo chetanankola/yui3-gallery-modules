@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+<head>
+    <title>gallery-nav-assist</title>
+    <script src="/build/yui/yui.js"></script>
+    <script src="js/tests.js"></script>
+    <meta charset="utf-8" />
+</head>
+<body class="yui3-skin-sam">
+<div id="logger"></div>
+
+<!-- [START] gallery-nav-assist test fixture -->
+<div id="tab">
+    <ul>
+        <li><input type="text" id="testinputbox"/></li>
+        <li><a href="#Tab1" id="tab1"> Disable others</a></li>
+    </ul>
+</div>
+<div id="header">
+    <h2> header stuff </h2>
+</div>
+<div id="sidebar">
+    <h2> Related Search </h2>
+</div>
+<div id="rightbar">
+    <h2 id="bleh"><a style="display:block;" href="http://facebook.com">Facebook Gossip </a></h2>
+</div>
+<div id="main">
+    <div class="bright"><p>Also think about integrating this with carousel where you can move to next image by left and right arrow.</p></div>
+</div>
+<ul id="links">
+    <li> `Every time this happens its a FAIL` </li>
+</ul>
+<!-- [END] gallery-nav-assist test fixture -->
+
+<script>
+YUI({
+    coverage: ['gallery-nav-assist'],
+    filter: (window.location.search.match(/[?&]filter=([^&]+)/) || [])[1] || 'raw'
+}).use('test-console', 'test', 'module-tests', function(Y) {
+
+    (new Y.Test.Console()).render('#logger');
+
+    Y.Test.Runner.setName('gallery-nav-assist');
+    Y.Test.Runner.run();
+});
+</script>
+</body>
+</html>

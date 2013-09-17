@@ -1,0 +1,11 @@
+{
+    "name"       : "gallery-nav-assist",
+    "displayName": "Gallery: gallery-nav-assist",
+    "description": "*Summary Goes Here*",
+    "author"     : [ "jlecomte" ],
+    "use"        : [ "gallery-nav-assist" ],
+
+    "tags": [ "gallery" ],
+
+    "examples": []
+}
