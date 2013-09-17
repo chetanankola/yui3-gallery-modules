@@ -1,7 +1,7 @@
 {
     "name"       : "gallery-nav-assist",
     "displayName": "Gallery: gallery-nav-assist",
-    "description": "*Summary Goes Here*",
+    "description": "Facilitates keyboard navigation",
     "author"     : [ "jlecomte" ],
     "use"        : [ "gallery-nav-assist" ],
 
