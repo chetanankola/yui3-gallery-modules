@@ -2,7 +2,7 @@
     "name"       : "gallery-nav-assist",
     "displayName": "Gallery: gallery-nav-assist",
     "description": "Facilitates keyboard navigation",
-    "author"     : [ "jlecomte" ],
+    "author"     : [ "jlecomte", "chetanankola" ],
     "use"        : [ "gallery-nav-assist" ],
 
     "tags": [ "gallery" ],
