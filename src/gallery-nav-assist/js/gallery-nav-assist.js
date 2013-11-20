@@ -37,6 +37,10 @@
 
         DEFAULT_SMOOTH_SCROLL = false,
 
+        DEFAULT_NAV_POINTER = false,
+
+        DEFAULT_STYLE_CONTAINER = false,
+
         DURATION_OF_SMOOTHSCROLL = 0.3,
 
         ANIMTYPE_FOR_SMOOTHSCROLL = Y.Easing.easeIn;
@@ -73,15 +77,15 @@
         },
 
         styleContainer: {
-            value: false
+            value: DEFAULT_STYLE_CONTAINER
         },
 
         scrollAnim: {
             value: DEFAULT_SMOOTH_SCROLL
         },
 
-        setNavPointer: {
-            value: true
+        navPointer: {
+            value: DEFAULT_NAV_POINTER
         },
 
         ignore: {
@@ -198,7 +202,7 @@
          * Function that will register a new container-node to the registry
          * @method register
          * @protected
-         * @param {Object} config mostly contains a bunch of information regarding the node being registered{node:string,rank:integer,isHorizontal:boolean}
+         * @param {Object} config for node being registered{node:string,rank:integer,isHorizontal:boolean}
          *
          */
         register: function (config) {
@@ -486,7 +490,6 @@
             var childrenObj = node.all('> *'),
                 children = [],
                 container = this.container;
-
             childrenObj.each(function (child, i) {
                 children[i] = child;
             });
@@ -766,7 +769,7 @@
                 newindex = this.getNextIndex(childIndexInFocus);
                 container.childIndexInFocus = newindex;
                 this.bringChildtoFocus(container.children[newindex]);
-                if (this.get('setNavPointer')) {
+                if (this.get('navPointer')) {
                     this.setNavPointer();
                 }
             }
@@ -790,7 +793,7 @@
                 newindex = this.getPreviousIndex(childIndexInFocus);
                 this.bringChildtoFocus(container.children[newindex]);
                 container.childIndexInFocus = newindex;
-                if (this.get('setNavPointer')) {
+                if (this.get('navPointer')) {
                     this.setNavPointer();
                 }
             }
@@ -894,6 +897,7 @@
 
         /**
          * Function to adjust scrolling  child element which is in focus
+         * @method scrollTo
          * @param {Object} DOM element(child node in focus of the navigable container)
          * @return {Integer} amount to scroll to get the elem under focus to the center or to the top
          */
@@ -930,7 +934,7 @@
 
         /**
          * Function to get the new child into focus and right scroll
-         * @param: Node, representing the child that should gain focus.
+         * @param: {Object} Node, representing the child that should gain focus.
          */
         bringChildtoFocus: function (childInFocus) {
             // Related to getting the first link on reaching a child node
@@ -947,7 +951,6 @@
             }
 
             childInFocus.addClass(highlightClass).focus();
-
             if (this.anim && this.anim.get('running')) {
                 this.anim.pause();
             }

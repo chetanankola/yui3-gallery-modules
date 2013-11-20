@@ -30,12 +30,6 @@ YUI.add('gallery-nav-assist-tests', function (Y) {
                 nav = null;
             }
             nav = new Y.NAVASSIST({
-                defaultContainerHightlightStyle: {
-                    className: 'containerhighlight'
-                },
-                defaultElemHighlightStyle: {
-                    className: 'transhighlight'
-                },
                 registry: [{
                     node: '#main',
                     pullToTop: true,
@@ -61,6 +55,7 @@ YUI.add('gallery-nav-assist-tests', function (Y) {
                     node: '#crapNodeDoesntExist'
                 }],
                 debug: true,
+                navPointer: true,
                 styleContainer: true,
                 ignore: ['#testinputbox']
             });
@@ -173,7 +168,58 @@ YUI.add('gallery-nav-assist-tests', function (Y) {
             nav.disableAllNavigation();
         },
 
-        'check check multiple container navigation and ranking': function () {
+        'check arrow right keyboard press and its effect of navigation between child elements of a container which are horizontally aligned': function () {
+            if (nav) {
+                nav.destroy();
+                nav = null;
+            }
+            nav = new Y.NAVASSIST({
+                debug: true
+            });
+            nav.register({
+                node: '#navtabs',
+                isHorizontal: true
+            });
+            nav.makeNextContainerNavigable(true);
+            //simulate call to handler for keydown which is the same function called for arrow right
+            nav.onMyKeyDown({ // mock eventFacade
+                preventDefault: function () {
+                    return true;
+                }
+            });
+            //1st child should lose focus
+            Y.Assert.areEqual(Y.one('#tab1').hasClass(CLASS_DEFAULT_CHILD_HIGHLIGHT), false, '1st child isnt selected');
+            //2nd child should get the focus
+            Y.Assert.areEqual(Y.one('#tab2').hasClass(CLASS_DEFAULT_CHILD_HIGHLIGHT), true, '2nd child is selected');
+            nav.disableAllNavigation();
+        },
+
+        'Test to toggle nav pointer usage by config': function () {
+            if (nav) {
+                nav.destroy();
+                nav = null;
+            }
+            nav = new Y.NAVASSIST({
+                debug: true,
+                navPointer: true //by default its set to false
+            });
+            nav.register({
+                node: '#navtabs',
+                isHorizontal: true
+            });
+            nav.makeNextContainerNavigable(true);
+            //simulate call to handler for keydown which is the same function called for arrow right
+            nav.onMyKeyDown({ // mock eventFacade
+                preventDefault: function () {
+                    return true;
+                }
+            });
+            //2nd child have a nav pointer
+            Y.Assert.areEqual(Y.one('.tab2 span').hasClass(CLASS_NAV_POINTER), true, 'nav pointer for tab2');
+            nav.disableAllNavigation();
+        },
+
+        'check multiple container navigation and ranking': function () {
             if (nav) {
                 nav.destroy();
                 nav = null;
@@ -192,7 +238,6 @@ YUI.add('gallery-nav-assist-tests', function (Y) {
                     rank: 3
                 }]
             });
-
             //navigate once to the container ranked 1
             nav.makeNextContainerNavigable(true);
             Y.Assert.areEqual(Y.one('#header').hasClass(CLASS_DEFAULT_CONTAINER_HIGHLIGHT), true, 'rank1 is header is selected');
@@ -202,6 +247,35 @@ YUI.add('gallery-nav-assist-tests', function (Y) {
             nav.makeNextContainerNavigable(true);
 
             Y.Assert.areEqual(Y.one('#sidebar').hasClass(CLASS_DEFAULT_CONTAINER_HIGHLIGHT), true, 'rank3 is sidebar is selected');
+            nav.disableAllNavigation();
+        },
+        'check ignore functionality, where nodes which are in ignore list arent selected': function () {
+            if (nav) {
+                nav.destroy();
+                nav = null;
+            }
+            nav = new Y.NAVASSIST({
+                styleContainer: true,
+                debug: true,
+                registry: [{
+                    node: '#tabs',
+                    rank: 1
+                }],
+                ignore: ['#testnputbox']
+            });
+            //navigate once to the container ranked 1
+            nav.makeNextContainerNavigable(true);
+            nav.onMyKeyDown({ // mock eventFacade
+                preventDefault: function () {
+                    return true;
+                }
+            });
+            nav.onMyKeyDown({ // mock eventFacade
+                preventDefault: function () {
+                    return true;
+                }
+            });
+            Y.Assert.areEqual(Y.one('#testinputbox').hasClass(CLASS_DEFAULT_CONTAINER_HIGHLIGHT), false, 'input box shouldnt be selected');
             nav.disableAllNavigation();
         }
     }));

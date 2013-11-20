@@ -39,6 +39,10 @@ YUI.add('gallery-nav-assist', function (Y, NAME) {
 
         DEFAULT_SMOOTH_SCROLL = false,
 
+        DEFAULT_NAV_POINTER = false,
+
+        DEFAULT_STYLE_CONTAINER = false,
+
         DURATION_OF_SMOOTHSCROLL = 0.3,
 
         ANIMTYPE_FOR_SMOOTHSCROLL = Y.Easing.easeIn;
@@ -75,15 +79,15 @@ YUI.add('gallery-nav-assist', function (Y, NAME) {
         },
 
         styleContainer: {
-            value: false
+            value: DEFAULT_STYLE_CONTAINER
         },
 
         scrollAnim: {
             value: DEFAULT_SMOOTH_SCROLL
         },
 
-        setNavPointer: {
-            value: true
+        navPointer: {
+            value: DEFAULT_NAV_POINTER
         },
 
         ignore: {
@@ -124,10 +128,11 @@ YUI.add('gallery-nav-assist', function (Y, NAME) {
         },
 
         /**
+         * @method initializer
          * Tasks MyClass needs to perform during
          * the init() lifecycle phase
          * Function for initialization, it defaults registers the node provided
-         *      in the constructor, during object creation.
+         * in the constructor, during object creation.
          */
         initializer: function () {
             var self = this,
@@ -175,7 +180,6 @@ YUI.add('gallery-nav-assist', function (Y, NAME) {
          * Function that enables all navigation on the page using keyboard
          * @method enableAllNavigation
          * @protected
-         * @param : object :config{node:string,rank:integer,isHorizontal:boolean}
          *
          */
         enableAllNavigation: function () {
@@ -188,7 +192,6 @@ YUI.add('gallery-nav-assist', function (Y, NAME) {
          * Function that disables all navigation on the page using keyboard
          * @method disableAllNavigation
          * @protected
-         * @param
          *
          */
         disableAllNavigation: function () {
@@ -200,7 +203,7 @@ YUI.add('gallery-nav-assist', function (Y, NAME) {
          * Function that will register a new container-node to the registry
          * @method register
          * @protected
-         * @param : object :config{node:string,rank:integer,isHorizontal:boolean}
+         * @param {Object} config for node being registered{node:string,rank:integer,isHorizontal:boolean}
          *
          */
         register: function (config) {
@@ -219,8 +222,7 @@ YUI.add('gallery-nav-assist', function (Y, NAME) {
          * Function that will remove an entry from the registry containing registered containers for navigation
          * @method deRegister
          * @protected
-         * @param object config{node:string}
-         *
+         * @param {Object} config contains the object with node and the {node: '#id'}  a selector basically
          */
         deRegister: function (config) {
 
@@ -232,6 +234,7 @@ YUI.add('gallery-nav-assist', function (Y, NAME) {
 
             if (node) {
                 index = this.isNodeInRegistry(nodeId);
+                //index can be 0 so don make a boolean check
                 if (index !== null) {
                     registry.splice(index, 1);
                     this.reorderRegistryByRank();
@@ -243,8 +246,8 @@ YUI.add('gallery-nav-assist', function (Y, NAME) {
          * Function that will return the index of the registry item if the nodeId exists in the registry
          * @method isNodeInRegistry
          * @protected
-         * @param : object :config{node:string}
-         * @return : index if nodeId exists inside registry else returns null if not found in registry
+         * @param {Object} config contains the object with node and the {node: '#id'}  can also be a selector basically
+         * @return {String} index of the node id in the registry if nodeId exists inside registry else returns null if not found in registry
          *
          */
         isNodeInRegistry: function (nodeId) {
@@ -265,7 +268,6 @@ YUI.add('gallery-nav-assist', function (Y, NAME) {
          * Function that will reorder  and updates the registry by Rank provided with the node
          * @method reorderRegistryByRank
          * @protected
-         * @param
          *
          */
         reorderRegistryByRank: function () {
@@ -317,7 +319,7 @@ YUI.add('gallery-nav-assist', function (Y, NAME) {
          * @method activateContainerNavigation
          * @protected
          * @param
-         * @return true of activation was successful else returns false.
+         * @return {boolean} true on successful activation false otherwise
          */
         activateContainerNavigation: function () {
 
@@ -346,8 +348,6 @@ YUI.add('gallery-nav-assist', function (Y, NAME) {
          * Function that detaches all subscriptions for moving across containers
          * @method deactivateContainerNavigation
          * @protected
-         * @param
-         *
          */
         deactivateContainerNavigation: function () {
             var subscription,
@@ -369,8 +369,7 @@ YUI.add('gallery-nav-assist', function (Y, NAME) {
          * Function that chooses the next registered container makes it navigable
          * @method makeNextContainerNavigable
          * @protected
-         * @param : {boolean} shiftRight (true: get next container, false: get previous container)
-         * @return {Mixed} The sanitized transition.
+         * @param {Boolean} shiftRight (true: get next container, false: get previous container)
          * Note: this is a single function used to navigate left and right depending on the boolean @param 1
          */
         makeNextContainerNavigable: function (shiftRight) {
@@ -412,7 +411,7 @@ YUI.add('gallery-nav-assist', function (Y, NAME) {
          * Function that chooses the next or previous registered container index to be made navigable from registry
          * @method getNextRegistryIndex
          * @protected
-         * @param : {boolean} isRightKeyPressed (true: get next container index, false: get previous container index)
+         * @param {Boolean} isRightKeyPressed (true: get next container index, false: get previous container index)
          * @return {integer} valid registered container index
          */
         getNextRegistryIndex: function (isRightKeyPressed) {
@@ -484,7 +483,6 @@ YUI.add('gallery-nav-assist', function (Y, NAME) {
             var childrenObj = node.all('> *'),
                 children = [],
                 container = this.container;
-
             childrenObj.each(function (child, i) {
                 children[i] = child;
             });
@@ -504,7 +502,6 @@ YUI.add('gallery-nav-assist', function (Y, NAME) {
          * @method initiateNavigation
          * @protected
          * initiates navigation by activating registered container
-         * @param
          *
          */
         initiateNavigation: function () {
@@ -581,7 +578,7 @@ YUI.add('gallery-nav-assist', function (Y, NAME) {
         /**
          * @method resetRegistryIndex
          * @protected
-         * set the Attr:activeRegistryIndex to null
+         * set the Attribute activeRegistryIndex to null
          *
          */
         resetRegistryIndex: function () {
@@ -765,7 +762,7 @@ YUI.add('gallery-nav-assist', function (Y, NAME) {
                 newindex = this.getNextIndex(childIndexInFocus);
                 container.childIndexInFocus = newindex;
                 this.bringChildtoFocus(container.children[newindex]);
-                if (this.get('setNavPointer')) {
+                if (this.get('navPointer')) {
                     this.setNavPointer();
                 }
             }
@@ -789,7 +786,7 @@ YUI.add('gallery-nav-assist', function (Y, NAME) {
                 newindex = this.getPreviousIndex(childIndexInFocus);
                 this.bringChildtoFocus(container.children[newindex]);
                 container.childIndexInFocus = newindex;
-                if (this.get('setNavPointer')) {
+                if (this.get('navPointer')) {
                     this.setNavPointer();
                 }
             }
@@ -860,6 +857,8 @@ YUI.add('gallery-nav-assist', function (Y, NAME) {
         },
 
         /**
+         * @method _scroll
+         * @private
          * Function to scroll the window by a certain y value
          * @param: y - integer, that represents the calculated height by which scroll should happen on Y axis on window object
          *
@@ -891,8 +890,9 @@ YUI.add('gallery-nav-assist', function (Y, NAME) {
 
         /**
          * Function to adjust scrolling  child element which is in focus
-         * @param Node: DOM element(child node in focus of the navigable container)
-         * @return : Integer:amount to scroll to get the elem under focus to the center or to the top
+         * @method scrollTo
+         * @param {Object} DOM element(child node in focus of the navigable container)
+         * @return {Integer} amount to scroll to get the elem under focus to the center or to the top
          */
         scrollTo: function (Node) {
             var childsY = Node.getY(),
@@ -927,7 +927,7 @@ YUI.add('gallery-nav-assist', function (Y, NAME) {
 
         /**
          * Function to get the new child into focus and right scroll
-         * @param: Node, representing the child that should gain focus.
+         * @param: {Object} Node, representing the child that should gain focus.
          */
         bringChildtoFocus: function (childInFocus) {
             // Related to getting the first link on reaching a child node
@@ -944,7 +944,6 @@ YUI.add('gallery-nav-assist', function (Y, NAME) {
             }
 
             childInFocus.addClass(highlightClass).focus();
-
             if (this.anim && this.anim.get('running')) {
                 this.anim.pause();
             }

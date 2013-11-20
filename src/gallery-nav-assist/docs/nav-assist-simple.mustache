@@ -1,0 +1,30 @@
+<div class="intro">
+    <p>{{description}}</p>
+</div>
+
+<div id="demo" class="example">
+    <style>
+    {{>simple-source-css}}
+    </style>
+
+    {{>simple-source-html}}
+
+    <script>
+    YUI().use('gallery-nav-assist', function(Y){
+        {{>simple-start-js}}
+    });
+    </script>
+</div>
+
+
+<h2 id="source">Full Source</h2>
+<p>Instantiating the Widget.</p>
+```
+YUI().use('gallery-nav-assist', function(Y){
+{{>simple-start-js}}}
+});
+```
+<p>demo page css</p>
+```
+{{>simple-source-css}}
+```
