@@ -12,10 +12,38 @@ YUI.add('gallery-nav-assist-tests', function (Y) {
         KEYCODE_FOR_ARROW_LEFT = 37,
         KEYCODE_FOR_ARROW_UP = 38,
         KEYCODE_FOR_ARROW_DOWN = 40,
-        KEYCODE_FOR_SHIFT = 16,
+        KEYCODE_FOR_DISABLE = 68, // 'd'
         KEYCODE_FOR_ESC = 27,
+        HORIZONTALLY = true,
         nav = null;
 
+    //direct functions to simulate keystrokes, easy for writing tests
+    function disableNavigation() {
+        Y.one('body').simulate("keydown", {keyCode: KEYCODE_FOR_DISABLE, shiftKey: true}); //to disable
+    }
+    function moveToNextContainer() {
+        Y.one('body').simulate("keydown", {keyCode: KEYCODE_FOR_ARROW_RIGHT, shiftKey: true}); //to go to next container
+    }
+    function moveToPrevContainer() {
+        Y.one('body').simulate("keydown", {keyCode: KEYCODE_FOR_ARROW_LEFT, shiftKey: true}); //to go to previous container
+    }
+    function pressEscape() {
+        Y.one('body').simulate("keydown", {keyCode: KEYCODE_FOR_ESC}); //to disable navigation
+    }
+    function moveToNextChild(isHorizontal) {
+        if (isHorizontal) {
+            Y.one('body').simulate("keydown", {keyCode: KEYCODE_FOR_ARROW_RIGHT}); //to disable navigation
+        } else {
+            Y.one('body').simulate("keydown", {keyCode: KEYCODE_FOR_ARROW_DOWN}); //to disable navigation
+        }
+    }
+    function moveToPrevChild(isHorizontal) {
+        if (isHorizontal) {
+            Y.one('body').simulate("keydown", {keyCode: KEYCODE_FOR_ARROW_LEFT}); //to disable navigation
+        } else {
+            Y.one('body').simulate("keydown", {keyCode: KEYCODE_FOR_ARROW_UP}); //to disable navigation
+        }
+    }
     suite.add(new Y.Test.Case({
 
         name: 'Automated Tests',
@@ -49,7 +77,7 @@ YUI.add('gallery-nav-assist-tests', function (Y) {
                     node: '#sidebar',
                     rank: 1
                 }, {
-                    node: '#tabs ul',
+                    node: '#tabs',
                     isHorizontal: true
                 }, {
                     node: '#crapNodeDoesntExist'
@@ -59,9 +87,16 @@ YUI.add('gallery-nav-assist-tests', function (Y) {
                 styleContainer: true,
                 ignore: ['#testinputbox']
             });
-            nav.disableAllNavigation();
             Assert.isObject(nav);
+            nav.deRegister('#eastrail');
+            nav.deRegister('#links');
+            nav.deRegister('#sidebar');
+            nav.deRegister('#tabs');
+            nav.deRegister('#main');
+            nav.disableAllNavigation();
         },
+
+
         'register a new dom node and check if its navigable': function () {
             if (nav) {
                 nav.destroy();
@@ -73,13 +108,17 @@ YUI.add('gallery-nav-assist-tests', function (Y) {
             nav.register({
                 node: '#header'
             });
-
-            nav.makeNextContainerNavigable(true);
+            nav.register({
+                node: '#sidebar'
+            });
+            moveToNextContainer();
+            moveToNextContainer();
+            moveToPrevContainer();
             Y.Assert.areEqual(Y.one('#header h2').hasClass('default-child-highlight'), true, 'header divs child has the highlight');
             nav.disableAllNavigation();
         },
 
-        'disable all navigation, then enable all navigation': function () {
+        'disable all navigation via shift + d, and Esc': function () {
             if (nav) {
                 nav.destroy();
                 nav = null;
@@ -90,14 +129,11 @@ YUI.add('gallery-nav-assist-tests', function (Y) {
             nav.register({
                 node: '#header'
             });
-
-            nav.makeNextContainerNavigable(true);
+            moveToNextContainer();
+            Y.Assert.areEqual(Y.one('#header h2').hasClass(CLASS_DEFAULT_CHILD_HIGHLIGHT), true, 'header divs child has the highlight');
+            disableNavigation();
             nav.splash('Disabling all navigation', [100, 100]);
-            Y.Assert.areEqual(Y.one('#header h2').hasClass('default-child-highlight'), true, 'header divs child has the highlight');
-            nav.disableAllNavigation();
             Y.Assert.areEqual(Y.one(CLASS_DEFAULT_CHILD_HIGHLIGHT), null, 'nav disabled: No div has highlight anymore');
-            nav.enableAllNavigation();
-            Y.Assert.areEqual(Y.one('#header h2').hasClass(CLASS_DEFAULT_CHILD_HIGHLIGHT), true, 'nav enabled: header divs child has the highlight');
             nav.disableAllNavigation();
         },
 
@@ -117,7 +153,8 @@ YUI.add('gallery-nav-assist-tests', function (Y) {
             nav.register({
                 node: '#header'
             });
-            nav.makeNextContainerNavigable(true);
+            //nav.makeNextContainerNavigable(true);
+            moveToNextContainer();
             Y.Assert.areEqual(Y.one('#header').hasClass(CLASS_DEFAULT_CONTAINER_HIGHLIGHT), true, 'nav enabled: header div container has default highlight');
             Y.Assert.areEqual(Y.one('#header h2').hasClass(CLASS_DEFAULT_CHILD_HIGHLIGHT), true, 'nav enabled: header divs child has default highlight');
 
@@ -125,7 +162,8 @@ YUI.add('gallery-nav-assist-tests', function (Y) {
             nav.deRegister({
                 node: '#header'
             });
-            nav.makeNextContainerNavigable(true);
+            //nav.makeNextContainerNavigable(true);
+            moveToNextContainer();
             Y.Assert.areEqual(nav.isNodeInRegistry('#header'), null, 'header node has been deregistered');
 
 
@@ -139,34 +177,13 @@ YUI.add('gallery-nav-assist-tests', function (Y) {
                     className: customChildClass
                 }
             });
-            nav.makeNextContainerNavigable(true);
+            //nav.makeNextContainerNavigable(true);
+            moveToNextContainer();
             Y.Assert.areEqual(Y.one('#header').hasClass(customContainerClass), true, 'nav enabled: header div container has custom highlight');
             Y.Assert.areEqual(Y.one('#header h2').hasClass(customChildClass), true, 'nav enabled: header divs child has custom highlight');
             nav.disableAllNavigation();
         },
 
-        'check arrow up keyboard press and its effect of navigation between child elements of a container': function () {
-            if (nav) {
-                nav.destroy();
-                nav = null;
-            }
-            nav = new Y.NAVASSIST({
-                debug: true
-            });
-            nav.register({
-                node: '#eastrail'
-            });
-            nav.makeNextContainerNavigable(true);
-            //simulate keyup
-            nav.onMyKeyUp({ // mock eventFacade
-                preventDefault: function () {
-                    return true;
-                }
-            });
-            Y.Assert.areEqual(Y.one('#elem1').hasClass(CLASS_DEFAULT_CHILD_HIGHLIGHT), false, '1st child isnt selected');
-            Y.Assert.areEqual(Y.one('#elem2').hasClass(CLASS_DEFAULT_CHILD_HIGHLIGHT), true, '2nd child is selected');
-            nav.disableAllNavigation();
-        },
 
         'check arrow right keyboard press and its effect of navigation between child elements of a container which are horizontally aligned': function () {
             if (nav) {
@@ -180,13 +197,9 @@ YUI.add('gallery-nav-assist-tests', function (Y) {
                 node: '#navtabs',
                 isHorizontal: true
             });
-            nav.makeNextContainerNavigable(true);
+            moveToNextContainer();
             //simulate call to handler for keydown which is the same function called for arrow right
-            nav.onMyKeyDown({ // mock eventFacade
-                preventDefault: function () {
-                    return true;
-                }
-            });
+            moveToNextChild(HORIZONTALLY);
             //1st child should lose focus
             Y.Assert.areEqual(Y.one('#tab1').hasClass(CLASS_DEFAULT_CHILD_HIGHLIGHT), false, '1st child isnt selected');
             //2nd child should get the focus
@@ -207,19 +220,15 @@ YUI.add('gallery-nav-assist-tests', function (Y) {
                 node: '#navtabs',
                 isHorizontal: true
             });
-            nav.makeNextContainerNavigable(true);
+            moveToNextContainer();
             //simulate call to handler for keydown which is the same function called for arrow right
-            nav.onMyKeyDown({ // mock eventFacade
-                preventDefault: function () {
-                    return true;
-                }
-            });
+            moveToNextChild(HORIZONTALLY);
             //2nd child have a nav pointer
             Y.Assert.areEqual(Y.one('.tab2 span').hasClass(CLASS_NAV_POINTER), true, 'nav pointer for tab2');
             nav.disableAllNavigation();
         },
 
-        'check multiple container navigation and ranking': function () {
+        'check multiple container navigation and ranking, check Escape key press': function () {
             if (nav) {
                 nav.destroy();
                 nav = null;
@@ -239,14 +248,16 @@ YUI.add('gallery-nav-assist-tests', function (Y) {
                 }]
             });
             //navigate once to the container ranked 1
-            nav.makeNextContainerNavigable(true);
+            moveToNextContainer();
             Y.Assert.areEqual(Y.one('#header').hasClass(CLASS_DEFAULT_CONTAINER_HIGHLIGHT), true, 'rank1 is header is selected');
 
             //navigate twice so taht the 3rd container is reached and it shuould be sidebar since its ranked 3
-            nav.makeNextContainerNavigable(true);
-            nav.makeNextContainerNavigable(true);
+            moveToNextContainer();
+            moveToNextContainer();
 
             Y.Assert.areEqual(Y.one('#sidebar').hasClass(CLASS_DEFAULT_CONTAINER_HIGHLIGHT), true, 'rank3 is sidebar is selected');
+            pressEscape();
+            Y.Assert.areEqual(Y.one('#sidebar').hasClass(CLASS_DEFAULT_CONTAINER_HIGHLIGHT), false, 'sidebar lost focus');
             nav.disableAllNavigation();
         },
         'check ignore functionality, where nodes which are in ignore list arent selected': function () {
@@ -264,18 +275,30 @@ YUI.add('gallery-nav-assist-tests', function (Y) {
                 ignore: ['#testnputbox']
             });
             //navigate once to the container ranked 1
-            nav.makeNextContainerNavigable(true);
-            nav.onMyKeyDown({ // mock eventFacade
-                preventDefault: function () {
-                    return true;
-                }
-            });
-            nav.onMyKeyDown({ // mock eventFacade
-                preventDefault: function () {
-                    return true;
-                }
-            });
+            moveToNextContainer();
+            moveToNextChild();//goes to searchbox
             Y.Assert.areEqual(Y.one('#testinputbox').hasClass(CLASS_DEFAULT_CONTAINER_HIGHLIGHT), false, 'input box shouldnt be selected');
+            moveToNextChild();//
+            Y.Assert.areEqual(Y.one('#beforebox').hasClass(CLASS_DEFAULT_CONTAINER_HIGHLIGHT), false, 'next child shouldnt get selected since testinputbox is on ignore list');
+            nav.disableAllNavigation();
+        },
+
+        'check arrow up keyboard press and its effect of navigation between child elements of a container': function () {
+            if (nav) {
+                nav.destroy();
+                nav = null;
+            }
+            nav = new Y.NAVASSIST({
+                debug: true
+            });
+            nav.register({
+                node: '#eastrail'
+            });
+            moveToNextContainer();
+            Y.Assert.areEqual(Y.one('#elem1').hasClass(CLASS_DEFAULT_CHILD_HIGHLIGHT), true, '1st child is selected');
+            moveToPrevChild();
+            Y.Assert.areEqual(Y.one('#elem1').hasClass(CLASS_DEFAULT_CHILD_HIGHLIGHT), false, '1st child isnt selected');
+            Y.Assert.areEqual(Y.one('#elem2').hasClass(CLASS_DEFAULT_CHILD_HIGHLIGHT), true, '2nd child is selected');
             nav.disableAllNavigation();
         }
     }));
@@ -285,6 +308,7 @@ YUI.add('gallery-nav-assist-tests', function (Y) {
 }, '', {
     requires: [
         'test',
-        'gallery-nav-assist'
+        'gallery-nav-assist',
+        'node-event-simulate'
     ]
 });

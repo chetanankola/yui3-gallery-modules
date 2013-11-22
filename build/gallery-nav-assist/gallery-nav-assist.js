@@ -1,7 +1,6 @@
 YUI.add('gallery-nav-assist', function (Y, NAME) {
 
 /*jslint nomen:true, indent: 4, regexp: true, white: true, sloppy: true */
-
     /**
      * Provides easy and custom navigation across various dom elements using keyboard.
      * shift + d : disables navigation assist
@@ -24,6 +23,18 @@ YUI.add('gallery-nav-assist', function (Y, NAME) {
         KEY_TO_ENABLE_NAVIGATION = 'down:69+shift',
 
         KEYCODE_FOR_ESC = 'down:27',
+
+        KEYCODE_FOR_ARROW_RIGHT = 39,
+
+        KEYCODE_FOR_ARROW_LEFT = 37,
+
+        KEYCODE_FOR_ARROW_UP = 38,
+
+        KEYCODE_FOR_ARROW_DOWN = 40,
+
+        NEXT_CHILD_PARAM = 'next',
+
+        BASE_KEY_EVENT = 'keydown',
 
         _NEXT = true,
 
@@ -124,7 +135,8 @@ YUI.add('gallery-nav-assist', function (Y, NAME) {
             isHorizontal: false,
             /*mode of alignment of the children: horizontal , or by default it is vertical*/
 
-            pullToTop: false /*meant for slideshow kind of containers where you want child elements to scroll to top than being centered*/
+            pullToTop: false
+            /*meant for slideshow kind of containers where you want child elements to scroll to top than being centered*/
         },
 
         /**
@@ -334,8 +346,19 @@ YUI.add('gallery-nav-assist', function (Y, NAME) {
 
             Y.ContainerSubscr.next = parent.on("key", function () {
                 self.makeNextContainerNavigable(_NEXT);
-
             }, SHIFT_RIGHT_ARROW);
+
+
+            parent.on('keyup', function (e) {
+                if (e.charCode === 16) {
+                   self._specialKeyDown = false;
+                }
+            });
+            parent.on('keydown', function (e) {
+                if (e.charCode === 16) {
+                   self._specialKeyDown = true;
+                }
+            });
 
             Y.ContainerSubscr.prev = parent.on("key", function () {
                 self.makeNextContainerNavigable(_PREV);
@@ -461,7 +484,8 @@ YUI.add('gallery-nav-assist', function (Y, NAME) {
          */
         registerContainer: function (node, rank, isHorizontal, pullToTop, containerStyle, elemStyle) {
             if (node) {
-                this.updateChildren(node, rank, isHorizontal, pullToTop, containerStyle, elemStyle); //will update node-container.children as array
+                this.updateChildren(node, rank, isHorizontal, pullToTop, containerStyle, elemStyle);
+                //will update node-container.children as array
             }
         },
 
@@ -625,7 +649,8 @@ YUI.add('gallery-nav-assist', function (Y, NAME) {
         /**
          * @method splash
          * @protected
-         * Splash a message onto the container: specifically its rank, mostly meant for debugging purpose and is shown only when debug flag is on
+         * Splash a message onto the container: specifically its rank, mostly
+         * meant for debugging purpose and is shown only when debug flag is on
          * @param {String} msg message to be splashed on screen
          * @param {Array} pos [x,y] denotes the coordinate on the screen where the message has to be splashed
          *
@@ -671,23 +696,99 @@ YUI.add('gallery-nav-assist', function (Y, NAME) {
                     this.splash('Container now navigable:' + container.node.generateID(), xy);
                 }
             }
-
-            /** on KeyDown **/
             Y.BodySubscr = {};
+            Y.BodySubscr.keydown = Y.one('body').on(BASE_KEY_EVENT, Y.bind(this.navigateToNextChild, this));
+            Y.BodySubscr.keyup = Y.one('body').on(BASE_KEY_EVENT, Y.bind(this.navigateToPrevChild, this));
+            self.navigateToNextChild(NEXT_CHILD_PARAM);
+        },
+        /**
+         * @method isKeyChildNavigator
+         * @protected
+         * @param {Object} e eventFacade generated when a key is pressed
+         * @return {Boolean} returns true if the keypressed is either of arrow up, arrow right, arrow left or arrow down
+         * Function that checks the type of keyPress and returns true if its any of the
+         * child navigation keys for eg: arrow up, down right left
+         */
+        isKeyChildNavigator: function (e) {
+            if (e && (e.charCode === KEYCODE_FOR_ARROW_UP
+                || e.charCode === KEYCODE_FOR_ARROW_LEFT
+                || e.charCode === KEYCODE_FOR_ARROW_DOWN
+                || e.charCode === KEYCODE_FOR_ARROW_RIGHT)) {
+                return true;
+            }
+            return false;
+        },
 
-            if (container.isHorizontal) {
-                Y.BodySubscr.keyright = Y.one('body').on('right', Y.bind(this.onMyKeyDown, this));
-                /** ON KeyRight **/
-                Y.BodySubscr.keyleft = Y.one('body').on('left', Y.bind(this.onMyKeyUp, this));
+        /**
+         * @method navigateToNextChild
+         * @protected
+         * @param {Object} e eventFacade generated when a key is pressed
+         * Function which on keyboard down key press, will focus/navigate to next child of the container registered
+         */
+        navigateToNextChild: function (e) {
+            var container = this.container,
+                childIndexInFocus,
+                newindex;
 
-                self.onMyKeyDown();
-            } else {
-                Y.BodySubscr.keydown = Y.one('body').on('down', Y.bind(this.onMyKeyDown, this));
-                /** ON KeyUp **/
-                Y.BodySubscr.keyup = Y.one('body').on('up', Y.bind(this.onMyKeyUp, this));
+            //ignore any combination of navigation key with specialkeys
+            if (this.isKeyChildNavigator(e) && this._specialKeyDown) {
+                return;
+            }
+            //make sure that for horizontal containers arrowkeyDOWN doesnt do anything
+            if (container && container.isHorizontal && e.charCode === KEYCODE_FOR_ARROW_DOWN) {
+                return;
+            }
 
-                // first time on selecting a container the first element should be selected
-                self.onMyKeyDown();
+            if (e === NEXT_CHILD_PARAM || e.charCode === KEYCODE_FOR_ARROW_DOWN || e.charCode === KEYCODE_FOR_ARROW_RIGHT) {
+                this.wasLastChild = false; //for handling some edge case where on down key we navigate back to 1st child.
+
+                if (container) {
+                    if (Y.Lang.isObject(e)) {
+                        e.preventDefault();
+                    }
+                    childIndexInFocus = container.childIndexInFocus;
+                    newindex = this.getNextIndex(childIndexInFocus);
+                    container.childIndexInFocus = newindex;
+                    this.bringChildtoFocus(container.children[newindex]);
+                    if (this.get('navPointer')) {
+                        this.setNavPointer();
+                    }
+                }
+            }
+        },
+
+        /**
+         * @method navigateToPrevChild
+         * @protected
+         * @param {Object} e eventFacade generated when a key is pressed
+         * on keyboard up key press, will focus/navigate to previous child of the container registered
+         */
+        navigateToPrevChild: function (e) {
+            var container = this.container,
+                childIndexInFocus,
+                newindex;
+
+            //ignore any combination of navigation key with specialkeys
+            if (this.isKeyChildNavigator(e) && this._specialKeyDown) {
+                return;
+            }
+            //make sure that for horizontal containers arrowkeyup doesnt do anything
+            if (container.isHorizontal && e.charCode === KEYCODE_FOR_ARROW_UP) {
+                return;
+            }
+            if (e === NEXT_CHILD_PARAM || e.charCode === KEYCODE_FOR_ARROW_UP || e.charCode === KEYCODE_FOR_ARROW_LEFT) {
+                if (container) {
+                    if (Y.Lang.isObject(e)) {
+                        e.preventDefault();
+                    }
+                    childIndexInFocus = container.childIndexInFocus;
+                    newindex = this.getPreviousIndex(childIndexInFocus);
+                    this.bringChildtoFocus(container.children[newindex]);
+                    container.childIndexInFocus = newindex;
+                    if (this.get('navPointer')) {
+                        this.setNavPointer();
+                    }
+                }
             }
         },
 
@@ -714,7 +815,8 @@ YUI.add('gallery-nav-assist', function (Y, NAME) {
         /**
          * @method removeNavPointer
          * @protected
-         * Function to remove navpointer to the selected child element (navpointer is a marker that visually shows what child element is selected)
+         * Function to remove navpointer to the selected child element (navpointer
+         * is a marker that visually shows what child element is selected)
          *
          */
         removeNavPointer: function () {
@@ -727,7 +829,8 @@ YUI.add('gallery-nav-assist', function (Y, NAME) {
         /**
          * @method setNavPointer
          * @protected
-         * Function to set navpointer to the selected child element (navpointer is a marker that visually shows what child element is selected)
+         * Function to set navpointer to the selected child element (navpointer is a marker that
+         * visually shows what child element is selected)
          *
          */
         setNavPointer: function () {
@@ -741,56 +844,6 @@ YUI.add('gallery-nav-assist', function (Y, NAME) {
             }
         },
 
-        /**
-         * @method onMyKeyDown
-         * @protected
-         * @param {Object} e eventFacade generated when a key is pressed for arrow down
-         * Function which on keyboard down key press, will focus/navigate to next child of the container registered
-         */
-        onMyKeyDown: function (e) {
-            var container = this.container,
-                childIndexInFocus,
-                newindex;
-
-            this.wasLastChild = false; //for handling some edge case where on down key we navigate back to 1st child.
-
-            if (container) {
-                if (e) {
-                    e.preventDefault();
-                }
-                childIndexInFocus = container.childIndexInFocus;
-                newindex = this.getNextIndex(childIndexInFocus);
-                container.childIndexInFocus = newindex;
-                this.bringChildtoFocus(container.children[newindex]);
-                if (this.get('navPointer')) {
-                    this.setNavPointer();
-                }
-            }
-        },
-
-        /**
-         * @method onMyKeyUp
-         * @protected
-         * on keyboard up key press, will focus/navigate to next child of the container registered
-         */
-        onMyKeyUp: function (e) {
-            var container = this.container,
-                childIndexInFocus,
-                newindex;
-
-            if (container) {
-                if (e) {
-                    e.preventDefault();
-                }
-                childIndexInFocus = container.childIndexInFocus;
-                newindex = this.getPreviousIndex(childIndexInFocus);
-                this.bringChildtoFocus(container.children[newindex]);
-                container.childIndexInFocus = newindex;
-                if (this.get('navPointer')) {
-                    this.setNavPointer();
-                }
-            }
-        },
 
         /**
          * Tasks MyClass needs to perform during
