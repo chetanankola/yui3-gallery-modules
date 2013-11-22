@@ -24,6 +24,10 @@ YUI.add('gallery-nav-assist', function (Y, NAME) {
 
         KEYCODE_FOR_ESC = 'down:27',
 
+        KEYCODE_FOR_SHIFT = 16,
+
+        KEYCODE_FOR_SPECIAL_KEY = KEYCODE_FOR_SHIFT,
+
         KEYCODE_FOR_ARROW_RIGHT = 39,
 
         KEYCODE_FOR_ARROW_LEFT = 37,
@@ -196,9 +200,8 @@ YUI.add('gallery-nav-assist', function (Y, NAME) {
          *
          */
         enableAllNavigation: function () {
-            if (this.activateContainerNavigation()) {
-                this.makeNextContainerNavigable(_NEXT);
-            }
+            this.activateContainerNavigation();
+            this.makeNextContainerNavigable(_NEXT);
         },
 
         /**
@@ -338,7 +341,6 @@ YUI.add('gallery-nav-assist', function (Y, NAME) {
          * @method activateContainerNavigation
          * @protected
          * @param
-         * @return {boolean} true on successful activation false otherwise
          */
         activateContainerNavigation: function () {
             Y.log('activating container navigation', 'debug');
@@ -347,32 +349,29 @@ YUI.add('gallery-nav-assist', function (Y, NAME) {
                 parent = Y.one('body');
 
             if (Y.ContainerSubscr) {
-                return false;
+                this.deactivateContainerNavigation();
             }
-
             Y.ContainerSubscr = {};
-
+            //register Shift + right arrow key navigation
             Y.ContainerSubscr.next = parent.on("key", function () {
                 self.makeNextContainerNavigable(_NEXT);
             }, SHIFT_RIGHT_ARROW);
-
-
-            parent.on('keyup', function (e) {
-                if (e.charCode === 16) {
-                   self._specialKeyDown = false;
-                }
-            });
-            parent.on('keydown', function (e) {
-                if (e.charCode === 16) {
-                   self._specialKeyDown = true;
-                }
-            });
-
+            //register Shift + left arrow key navigation
             Y.ContainerSubscr.prev = parent.on("key", function () {
                 self.makeNextContainerNavigable(_PREV);
             }, SHIFT_LEFT_ARROW);
 
-            return true;
+            //update special key strokes on down and up
+            parent.on('keyup', function (e) {
+                if (e.charCode === KEYCODE_FOR_SPECIAL_KEY) {
+                   self._specialKeyDown = false;
+                }
+            });
+            parent.on('keydown', function (e) {
+                if (e.charCode === KEYCODE_FOR_SPECIAL_KEY) {
+                   self._specialKeyDown = true;
+                }
+            });
         },
 
         /**

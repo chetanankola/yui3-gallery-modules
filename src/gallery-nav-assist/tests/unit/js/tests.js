@@ -13,6 +13,7 @@ YUI.add('gallery-nav-assist-tests', function (Y) {
         KEYCODE_FOR_ARROW_UP = 38,
         KEYCODE_FOR_ARROW_DOWN = 40,
         KEYCODE_FOR_DISABLE = 68, // 'd'
+        KEYCODE_FOR_ENABLE = 69, // 'd'
         KEYCODE_FOR_ESC = 27,
         HORIZONTALLY = true,
         nav = null;
@@ -20,6 +21,9 @@ YUI.add('gallery-nav-assist-tests', function (Y) {
     //direct functions to simulate keystrokes, easy for writing tests
     function disableNavigation() {
         Y.one('body').simulate("keydown", {keyCode: KEYCODE_FOR_DISABLE, shiftKey: true}); //to disable
+    }
+    function enableNavigation() {
+        Y.one('body').simulate("keydown", {keyCode: KEYCODE_FOR_ENABLE, shiftKey: true}); //to enable
     }
     function moveToNextContainer() {
         Y.one('body').simulate("keydown", {keyCode: KEYCODE_FOR_ARROW_RIGHT, shiftKey: true}); //to go to next container
@@ -88,11 +92,11 @@ YUI.add('gallery-nav-assist-tests', function (Y) {
                 ignore: ['#testinputbox']
             });
             Assert.isObject(nav);
-            nav.deRegister('#eastrail');
-            nav.deRegister('#links');
-            nav.deRegister('#sidebar');
-            nav.deRegister('#tabs');
-            nav.deRegister('#main');
+            nav.deRegister({node: '#eastrail'});
+            nav.deRegister({node: '#links'});
+            nav.deRegister({node: '#sidebar'});
+            nav.deRegister({node: '#tabs'});
+            nav.deRegister({node: '#main'});
             nav.disableAllNavigation();
         },
 
@@ -118,7 +122,7 @@ YUI.add('gallery-nav-assist-tests', function (Y) {
             nav.disableAllNavigation();
         },
 
-        'disable all navigation via shift + d, and Esc': function () {
+        'disable all navigation via shift + d, and enable via shift + e': function () {
             if (nav) {
                 nav.destroy();
                 nav = null;
@@ -134,6 +138,10 @@ YUI.add('gallery-nav-assist-tests', function (Y) {
             disableNavigation();
             nav.splash('Disabling all navigation', [100, 100]);
             Y.Assert.areEqual(Y.one(CLASS_DEFAULT_CHILD_HIGHLIGHT), null, 'nav disabled: No div has highlight anymore');
+
+            nav.splash('Enabling all navigation', [100, 100]);
+            enableNavigation();
+            Y.Assert.areEqual(Y.one('#header h2').hasClass(CLASS_DEFAULT_CHILD_HIGHLIGHT), true, 'header child has the highlight');
             nav.disableAllNavigation();
         },
 
