@@ -6,7 +6,7 @@
      * shift + arrow: moves across different containers registered (nodes in the registry)
      * arrow down, arrow up, arrow right, arrow left:  moves across different elements within a container
      *
-     * @module gallery-navigate
+     * @module gallery-navigate-assist
      */
 
     /*CONSTANTS*/
