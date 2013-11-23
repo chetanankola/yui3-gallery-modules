@@ -107,50 +107,34 @@ Example markup and js
         <script src="js/tests.js"></script>
         <script>
 YUI().use('gallery-nav-assist', function(Y) {
-            // var nav = new Y.NAVASSIST({
-            //     registry: [{
-            //         node: '#main',
-            //         pullToTop: true,
-            //     }, {
-            //         node: '#eastrail',
-            //         rank: 3
-            //     }, {
-            //         node: '#links',
-            //         rank: 4
-            //     }, {
-            //         node: '#sidebar',
-            //         rank: 1
-            //     }, {
-            //         node: '#tabs ul',
-            //         isHorizontal: true
-            //     }, {
-            //         node: '#crapNodeDoesntExist'
-            //     }],
-            //     debug: true,
-            //     styleContainer: true,
-            //     ignore: ['#testinputbox']
-            // });
-        var nav = new Y.NAVASSIST({
-            styleContainer: true,
-            debug: true
-
-        });
-            nav.register({
-                node: '#header',
-                rank: 3
+            var nav = new Y.NAVASSIST({
+                registry: [{
+                    node: '#main',
+                    pullToTop: true,
+                }, {
+                    node: '#eastrail',
+                    rank: 3
+                }, {
+                    node: '#links',
+                    rank: 4
+                }, {
+                    node: '#sidebar',
+                    rank: 1
+                }, {
+                    node: '#tabs ul',
+                    isHorizontal: true
+                }, {
+                    node: '#NodeThatDoesntExist'
+                }],
+                debug: true,
+                styleContainer: true,
+                ignore: ['#testinputbox']//ignores events when on input box
             });
-            nav.register({
-                node: '#sidebar',
-                rank: 1
-            });
+            //manual registeration
             nav.register({
                 node: '#navtabs',
-                rank: 2,
                 isHorizontal: true
             });
-
-        //nav.makeNextContainerNavigable(true);
-
 });
 
         </script>
