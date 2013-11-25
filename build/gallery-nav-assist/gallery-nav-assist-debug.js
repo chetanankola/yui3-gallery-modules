@@ -8,7 +8,7 @@ YUI.add('gallery-nav-assist', function (Y, NAME) {
      * shift + arrow: moves across different containers registered (nodes in the registry)
      * arrow down, arrow up, arrow right, arrow left:  moves across different elements within a container
      *
-     * @module gallery-navigate
+     * @module gallery-navigate-assist
      */
 
     /*CONSTANTS*/
@@ -743,9 +743,19 @@ YUI.add('gallery-nav-assist', function (Y, NAME) {
                 return;
             }
             //make sure that for horizontal containers arrowkeyDOWN doesnt do anything
-            if (container && container.isHorizontal && e.charCode === KEYCODE_FOR_ARROW_DOWN) {
-                return;
+            if (container) {
+                if (container.isHorizontal) {
+                    if (e.charCode === KEYCODE_FOR_ARROW_DOWN) {
+                        return;
+                    }
+                } else {
+                    if (e.charCode === KEYCODE_FOR_ARROW_RIGHT) {
+                        return;
+                    }
+                }
+
             }
+
 
             if (e === NEXT_CHILD_PARAM || e.charCode === KEYCODE_FOR_ARROW_DOWN || e.charCode === KEYCODE_FOR_ARROW_RIGHT) {
                 this.wasLastChild = false; //for handling some edge case where on down key we navigate back to 1st child.
@@ -780,10 +790,19 @@ YUI.add('gallery-nav-assist', function (Y, NAME) {
             if (this.isKeyChildNavigator(e) && this._specialKeyDown) {
                 return;
             }
-            //make sure that for horizontal containers arrowkeyup doesnt do anything
-            if (container.isHorizontal && e.charCode === KEYCODE_FOR_ARROW_UP) {
-                return;
+            //make sure that for horizontal containers arrowkeyup doesnt do anything, and non-horizontal containers arrow left doesnt do anything
+            if (container) {
+                if (container.isHorizontal) {
+                    if (e.charCode === KEYCODE_FOR_ARROW_UP) {
+                        return;
+                    }
+                } else {
+                    if (e.charCode === KEYCODE_FOR_ARROW_LEFT) {
+                        return;
+                    }
+                }
             }
+
             if (e === NEXT_CHILD_PARAM || e.charCode === KEYCODE_FOR_ARROW_UP || e.charCode === KEYCODE_FOR_ARROW_LEFT) {
                 if (container) {
                     if (Y.Lang.isObject(e)) {
