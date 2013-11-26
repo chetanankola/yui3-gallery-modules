@@ -12,8 +12,8 @@
             "name"       : "nav-assist-simple",
             "displayName": "A Simple Example",
             "description": "Demonstrates the use of nav-assist on a page with simple set of DOM containers",
-            "modules"    : ["nav-assist"],
-            "tags"       : ["navigation", "simple"]
+            "modules"    : [ "nav-assist" ],
+            "tags"       : [ "navigation", "simple" ]
         }
     ]
 }
