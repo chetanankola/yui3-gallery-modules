@@ -1,18 +1,18 @@
 /*jslint nomen:true, indent: 4, regexp: true, white: true, sloppy: true */
 
     /**
-     * Provides easy and custom navigation across various dom elements using keyboard.
+     * @module gallery-nav-assist
+     * @main gallery-nav-assist
+     * @requires node, event, event-key, gallery-event-nav-keys, base, anim
+     * @description Provides easy and custom navigation across various dom elements using keyboard.
      * shift + d : disables navigation assist
      * shift + e : enables navigation assist
      * shift + arrow: moves across different containers registered (nodes in the registry)
      * arrow down, arrow up, arrow right, arrow left:  moves across different elements within a container
-     *
-     * @module gallery-navigate-assist
      */
 
     //-- CONSTANTS ------------------------------------------------------------
-
-    var NAVASSIST = Y.namespace('Navigation-Assist'),
+    var NAVASSIST = Y.namespace('Navigation-Assistant'),
 
         SHIFT_RIGHT_ARROW = 'down:39+shift',
 
@@ -74,45 +74,104 @@
     NAVASSIST.NAME = 'Navigation Assistant';
 
     /**
-     * "Associative Array", used to define the set of attributes
+     * @property ATTRS
+     * @type {Object}
+     * Defines the set of attributes
      * added by this class. The name of the attribute is the key,
      * and the object literal value acts as the configuration
      * object passed to addAttrs
      */
     NAVASSIST.ATTRS = {
 
+        /**
+         * Holds the index value of the container currently active in registry
+         * @attribute activeRegistryIndex
+         * @type integer
+         * @default null
+         */
         activeRegistryIndex: {
             value: null
         },
 
+        /**
+         * Holds an array of objects, which holds information about a container eg: {node:String, isHorizontal: Boolean, rank: Integer}
+         * @attribute registry
+         * @type Array
+         * @default []
+         */
         registry: {
             value: []
         },
 
+        /**
+         * when set to true in the config will splash information about which container is active
+         * @attribute debug
+         * @optional
+         * @type Boolean
+         * @default null
+         */
         debug: {
             value: null
         },
 
+        /**
+         * when set to true in the config will style the container with a default style (when the container gets selected)
+         * @attribute styleContainer
+         * @type Boolean
+         * @default false
+         */
         styleContainer: {
             value: DEFAULT_STYLE_CONTAINER
         },
 
+        /**
+         * when set to true in the config will scroll to the container which is selected in a smooth scroll animation
+         * @attribute scrollAnim
+         * @type Boolean
+         * @default false
+         */
         scrollAnim: {
             value: DEFAULT_SMOOTH_SCROLL
         },
 
+        /**
+         * when set to true in the config will add a marker ¶ to child element recognize that focus is on a certain child element
+         * @attribute navPointer
+         * @type Boolean
+         * @default false
+         */
         navPointer: {
             value: DEFAULT_NAV_POINTER
         },
 
+        /**
+         * Array containing a string of selectors indicating the dom elements if are selected by nav assist
+         * have to disable nav-assist events for eg: ignore: ['#inputsearchbox'], will disable arrow-right event when this is selected
+         * @attribute ignore
+         * @type Array
+         * @default null
+         */
         ignore: {
-            value: false
+            value: null
         }
     };
-
+    /**
+     * @class NAVASSIST
+     * @extends Base
+     */
     Y.NAVASSIST = Y.extend(NAVASSIST, Y.Base, {
-
         /**
+         * @property container
+         * @type {Object}
+         * @default "{
+            node: null,
+            containerId: null,
+            children: [],
+            childIndexInFocus: -1,
+            activeLink: null,
+            isHorizontal: false,
+            pullToTop: false
+         }"
          * centralized approach where this container object is the source of truth and is the only thing that is activated.
          * Container Object with:
          * - navigable container id: string
@@ -144,10 +203,11 @@
         },
 
         /**
+         * @private
          * @method initializer
-         * Tasks MyClass needs to perform during
+         * @description Tasks MyClass needs to perform during
          * the init() lifecycle phase
-         * Function for initialization, it defaults registers the node provided
+         * Function for initialization, it default registers the node provided
          * in the constructor, during object creation.
          */
         initializer: function () {
@@ -193,7 +253,7 @@
         },
 
         /**
-         * Function that enables all navigation on the page using keyboard
+         * @Description Function that enables all navigation on the page using keyboard
          * @method enableAllNavigation
          * @protected
          */
@@ -203,7 +263,7 @@
         },
 
         /**
-         * Function that disables all navigation on the page using keyboard
+         * @Description Function that disables all navigation on the page using keyboard
          * @method disableAllNavigation
          * @protected
          */
@@ -213,10 +273,15 @@
         },
 
         /**
-         * Function that will register a new container-node to the registry
+         * @Description Function that will register a new container-node to the registry
          * @method register
-         * @protected
-         * @param {Object} config for node being registered{node:string,rank:integer,isHorizontal:boolean}
+         * @chainable
+         * @public
+         * @return {Self}
+         * @param {Object} [config] config for node being registered eg:{node:string,rank:integer,isHorizontal:boolean}
+              @param {String} [config.node] The selector string (can be an id) to find the node on the dom
+              @param {Integer} [config.rank] The Rank that specifies the order of container selection
+              @param {Boolean} [config.isHorizontal] that specifies if the container has child elements horizontally aligned
          */
         register: function (config) {
             Y.log('registering nodes', 'debug');
@@ -231,13 +296,17 @@
                 registry[registry.length] = regEntry;
                 this.reorderRegistryByRank();
             }
+            return this;
         },
 
         /**
          * Function that will remove an entry from the registry containing registered containers for navigation
          * @method deRegister
-         * @protected
-         * @param {Object} config contains the object with node and the {node: '#id'}  a selector basically
+         * @chainable
+         * @public
+         * @param {Object} [config] config contains the object with node and the {node: '#id'}  '#id' can also be a css selector
+         *      @param {String} [config.node] The selector string (can be an id) to find the node on the dom
+         * @return {Self}
          */
         deRegister: function (config) {
             Y.log('de-registering nodes', 'debug');
@@ -256,13 +325,14 @@
                     this.reorderRegistryByRank();
                 }
             }
+            return this;
         },
 
         /**
          * Function that will return the index of the registry item if the nodeId exists in the registry
          * @method isNodeInRegistry
          * @protected
-         * @param {Object} config contains the object with node and the {node: '#id'}  can also be a selector basically
+         * @param {String} Selector String that was used to register a container node
          * @return {String} index of the node id in the registry if nodeId exists inside registry else returns null if not found in registry
          */
         isNodeInRegistry: function (nodeId) {
@@ -275,7 +345,6 @@
                     return i;
                 }
             }
-
             return null;
         },
 
@@ -490,7 +559,7 @@
          * @method registerContainer
          * @protected
          * @param {Object} node (Container to be scanned for its children )
-         * @param {Integer} rank [1-maxlenofregistry] signifies priority for containers to be selected
+         * @param {Integer} rank [1 -  maxlenofregistry] signifies priority for containers to be selected
          * @param {Boolean} isHorizontal : if true then container is rendered horizontally else otherwise
          * @param {Boolean} pullToTop: if true then the child will not be centered instead pulled to the top of the page.
          * @param {String} containerStyle custom class name for styling the container on being selected
@@ -549,7 +618,7 @@
         /**
          * @method deactivateRegisteredContainer
          * @protected
-         * remove all subscriptions,css on the current navigable container and its children, reset Container object
+         * @Description Remove all subscriptions,css on the current navigable container and its children, reset Container object
          */
         deactivateRegisteredContainer: function () {
             this.killAllChildNavigationSubscription();
@@ -642,9 +711,9 @@
         },
 
         /**
+         * @description Detach all the subscriptions to the body
          * @method killAllChildNavigationSubscription
          * @protected
-         * Detach all the subscriptions to the body
          */
         killAllChildNavigationSubscription: function () {
             if (Y.BodySubscr) {
@@ -832,7 +901,7 @@
         /**
          * @method detachAllChildSubscriptions
          * @protected
-         * Function to detach navigation and all events needed to navigate within a container through the children
+         * @Description Function to detach navigation and all events needed to navigate within a container through the children
          */
         detachAllChildSubscriptions: function () {
             var BodySubscr = Y.BodySubscr,
@@ -881,16 +950,23 @@
             }
         },
 
+        /**
+         * @destructor
+         * @protected
+         * Function to destroy any object creations and event registerations
+         */
         destructor: function () {
             if (this.anim) {
                 delete this.anim;
             }
+            this.disableAllNavigation();
+
         },
 
         /**
          * Function to get the next child index on key down event.
-         * @param :integer, previous child index (for eg: 0 means 1st child)
-         * @return: integer, the new child index to be navigated to or focused to.
+         * @param {Integer} childIndexInFocus previous child index (for eg: 0 means 1st child)
+         * @return {Integer} the new child index to be navigated to or focused to.
          */
         getNextIndex: function (childIndexInFocus) {
             var container = this.container,
@@ -915,8 +991,8 @@
 
         /**
          * Function to retrieve the child-index previous to the @param1  on key up event.
-         * @param :integer, current child index in focus (for eg: 0 means 1st child)
-         * @return: integer, the new child index to be navigated to or focused to.
+         * @param {Integer} current child index in focus (for eg: 0 means 1st child)
+         * @return {Integer} the new child index to be navigated to or focused to.
          */
         getPreviousIndex: function (childIndexInFocus) {
             var container = this.container,
@@ -971,6 +1047,7 @@
         /**
          * Function to adjust scrolling  child element which is in focus
          * @method scrollTo
+         * @protected
          * @param {Object} DOM element(child node in focus of the navigable container)
          * @return {Integer} amount to scroll to get the elem under focus to the center or to the top
          */
@@ -1007,8 +1084,10 @@
         },
 
         /**
-         * Function to get the new child into focus and right scroll
-         * @param: {Object} Node, representing the child that should gain focus.
+         * Function to get the new child into focus and scroll to the child
+         * @method bringChildtoFocus
+         * @protected
+         * @param {Object} Node representing the child that should gain focus.
          */
         bringChildtoFocus: function (childInFocus) {
             // Related to getting the first link on reaching a child node
