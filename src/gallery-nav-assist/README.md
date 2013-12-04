@@ -58,40 +58,49 @@ results on a web site without having to use the mouse.
 </table>
 
 
-<pre>
-    this is pre formatted block and code inside this will be processed, for eg: html or ascii art
-</pre>
-
 Example Markup
 --------------
 
-    <body>
-        <div id="demo-page">
-            <div id="tabs">
-                <div><a href="#Tab1" id="tab1">Lorem Ipsum</a></div>
-                <input type="text" id="testinputbox"/>
-            </div>
-            <div id="header">
-                <ul>
-                    <li>
-                        <h2>Lorem Ipsum</h2>
-                    </li>
-                    <li>
-                        <h2>Lorem Ipsum</h2>
-                    </li>
-                </ul>
-            </div>
-            <div id="eastrail">
-                <h2 id="elem1"><a style="display:block;" href="http://www.yahoo.com/">Lorem Ipsum</a></h2>
-                <h2 id="elem2"><a style="display:block;" href="http://www.yahoo.com/">Lorem Ipsum</a></h2>
-            </div>
-            <div id="navtabs">
-                <div>tab1</div>
-                <div>tab2</div>
-            </div>
-        </div>
-    </body>
-
+     <html>
+    <head>
+        <title>gallery-nav-assist</title>
+        <!-- make sure to include the library's css -->
+        <link href='../../../../build/gallery-nav-assist/gallery-nav-assist.css' rel='stylesheet' type='text/css'>
+        <style type="text/css">
+        #navtabs div {display: inline-block; margin-left:20px; padding:10px; border:1px solid #efefef;}
+        </style>
+    </head>
+     <body>
+         <div id="demo-page">
+             <div id="tabs">
+                 <div><a href="#Tab1" id="tab1">Lorem Ipsum</a></div>
+                 <input type="text" id="testinputbox"/>
+             </div>
+             <div id="header">
+                 <ul>
+                     <li>
+                         <h2>Lorem Ipsum</h2>
+                     </li>
+                     <li>
+                         <h2>Lorem Ipsum</h2>
+                     </li>
+                 </ul>
+             </div>
+             <div id="eastrail">
+                 <h2 id="elem1"><a style="display:block;" href="http://www.yahoo.com/">Lorem Ipsum</a></h2>
+                 <h2 id="elem2"><a style="display:block;" href="http://www.yahoo.com/">Lorem Ipsum</a></h2>
+             </div>
+             <div id="navtabs">
+                 <div>tab1</div>
+                 <div>tab2</div>
+             </div>
+         </div>
+     <!-- include the yui library -->
+     <script src="http://yui.yahooapis.com/3.12.0/build/yui/yui-debug.js"></script>
+     <!-- include the gallery from CDN -->
+     <script src="../../../../build/gallery-nav-assist/gallery-nav-assist-debug.js"></script>
+     </body>
+     </html>
 
 Lets make the above page navigable
 ----------------------------------
@@ -106,9 +115,9 @@ Lets make the above page navigable
 <p>
     Once registered all the First level child elements of the container are navigable.
 </p>
-**Note:**<p>that you can specify a selector to reach a container for eg: '#header ul' will make all the list items navigable</p>
+<p>Note that you can specify a selector to reach a container for eg: '#header ul' will make all the list items navigable</p>
 
-<pre>
+```javascript
     // add this javascript snippet to the above page
     YUI().use('gallery-nav-assist', function(Y) {
         var nav = new Y.NAVASSIST({
@@ -137,11 +146,11 @@ Lets make the above page navigable
             ],
             ignore: ['#testinputbox']
         });
-</pre>
+```
 
 **example of manual container registeration**
 
-<pre>
+```javascript
     //Example of manual registeration
     nav.register({
         node: '#navtabs',
@@ -150,14 +159,14 @@ Lets make the above page navigable
             className: 'custom-highlight'
         }
     });
-</pre>
+```
 
 
 **example of container deregisteration**
 
-<pre>
+```javascript
     nav.deRegister({
         node: '#eastrail'
     });
     // after this the eastrail container will no longer be accessible
-</pre>
+```
