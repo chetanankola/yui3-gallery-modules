@@ -11,7 +11,7 @@ Links
   * <a href="#example-javascript">example javascript</a>
     1. <a href="#example-of-manual-container-registeration">example for manual registeration of container</a>
     2. <a href="##example-of-container-deregisteration">example for deregisteration of container</a>
-
+  * <a href="#frequently-asked-questions">FAQS</a>
 
 ## Introduction
 
@@ -174,3 +174,52 @@ Lets make the above page navigable with the following javascript
     });
     // after this the eastrail container will no longer be accessible
 ```
+## Frequently asked questions
+
+<h4>
+1. What if I have navigable child elements which are horizontally aligned eg: tabs, wont using arrow-up arrow-down key be counter intuitive?
+</h4>
+
+<h4>Answer</h4>
+
+<p>Yes. Its intuitive to use arrow-right and arrow-left. So Just register the node the following way</p>
+
+```javascript
+    nav.register({
+        node: '#navtabs',
+        isHorizontal: true,//note this is set and is default false otherwise
+    });
+```
+<p> this will make the child elements navigable via arrow-right and arrow-left keys</p>
+
+<h4>
+2. How do I make sure that shift-arrow-right or arrow-right does not tamper with my events for eg: arrow-right when on search box autocompletes a query, how do I disable gallery's events on certain DOM nodes?
+</h4>
+
+<h4>Answer</h4>
+
+<p>Yes. You can disable the events for certain nodes via the ignore list during instantiation for eg:</p>
+
+```javascript
+        var nav = new Y.NAVASSIST({
+            registry: [
+            {
+                node: '#eastrail',//by default all containers are assumed to have vertically navigable nodes
+                rank: 2 //specifies the rank of the container to be selected on using (shift + Right/left Arrow)
+            },
+            {
+                node: '#tabs',
+                rank: 4
+            }
+            ],
+            ignore: ['#testinputbox']
+            //here the testinputbox is part of '#tabs' container and when it receives focus the regular events of nav-assist wont work
+        });
+```
+
+<p> Note that the ignore takes an array of *selectors* for eg: </p>
+
+```javascript
+ ignore: ['#tabs input', '#elem1']; //will ignore gallery-nav-assist's events when focus is on these containers
+```
+
