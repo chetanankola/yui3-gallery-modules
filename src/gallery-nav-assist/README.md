@@ -4,8 +4,13 @@ gallery-nav-assist
 Links
 -----
 
-  * [Home Page](http://yuilibrary.com/)
-  * [Documentation](http://yuilibrary.com/yui/docs/)
+  * <a name="Introduction" href="#introduction">Introduction</a>
+  * <a name="Introduction" href="#purpose-of-this-library">Purpose</a>
+  * <a href="#list-of-commands-to-remember-to-use-this-library">List of Keyboard commands</a>
+  * <a href="#example-markup">example markup</a>
+  * <a href="#example-javascript">example javascript</a>
+    1. <a href="#example-of-manual-container-registeration">example for manual registeration of container</a>
+    2. <a href="##example-of-container-deregisteration">example for deregisteration of container</a>
 
 
 ## Introduction
@@ -58,8 +63,7 @@ results on a web site without having to use the mouse.
 </table>
 
 
-Example Markup
---------------
+## Example Markup
 
      <html>
     <head>
@@ -102,20 +106,10 @@ Example Markup
      </body>
      </html>
 
-Lets make the above page navigable
-----------------------------------
+Lets make the above page navigable with the following javascript
+----------------------------------------------------------------
 
-<p>
-    This code basically forms part of the application you want to write.
-</p>
-<p>
-    Here 4 containers #header, #tabs, #eastrail, #navtabs are containers registered.
-</p>
-
-<p>
-    Once registered all the First level child elements of the container are navigable.
-</p>
-<p>Note that you can specify a selector to reach a container for eg: '#header ul' will make all the list items navigable</p>
+## Example Javascript
 
 ```javascript
     // add this javascript snippet to the above page
@@ -148,7 +142,17 @@ Lets make the above page navigable
         });
 ```
 
-**example of manual container registeration**
+## What does the code do
+    
+ * This code basically forms part of the application you want to write.
+ * #header, #tabs, #eastrail, #navtabs are the containers registered.
+ * Once registered all the First level child elements of the container are navigable
+ * Note that you can specify a selector to reach a container for eg: '#header ul' will make all the list items navigable
+ * Now use the <a href="#list-of-commands-to-remember-to-use-this-library">Command List</a> to navigate through the page
+
+
+
+## Example of manual container registeration
 
 ```javascript
     //Example of manual registeration
@@ -162,7 +166,7 @@ Lets make the above page navigable
 ```
 
 
-**example of container deregisteration**
+## Example of container deregisteration
 
 ```javascript
     nav.deRegister({
